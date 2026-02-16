@@ -27,6 +27,14 @@ db.exec(`
         granted_at INTEGER DEFAULT (strftime('%s', 'now')),
         UNIQUE(user_id, role_name)
     );
+
+    CREATE TABLE IF NOT EXISTS tag_reminders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        role_name TEXT,
+        reminded_at INTEGER DEFAULT (strftime('%s', 'now')),
+        UNIQUE(user_id, role_name)
+    );
 `);
 
 module.exports = db;

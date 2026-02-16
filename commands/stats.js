@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const VoiceTracker = require('../utils/voiceTracker');
 const RoleManager = require('../utils/roleManager');
 const config = require('../config');
+const { formatTime } = require('../utils/timeFormatter');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -12,12 +13,15 @@ module.exports = {
                 .setDescription('User to check stats for (admin only)')
                 .setRequired(false)),
     async execute(interaction) {
+        // Defer reply to prevent timeout
+        await interaction.deferReply({ ephemeral: true });
+        
         const targetUser = interaction.options.getUser('user') || interaction.user;
         const userId = targetUser.id;
         
         // Only allow checking other users if admin
         if (targetUser.id !== interaction.user.id && !interaction.member.permissions.has('Administrator')) {
-            return interaction.reply({ content: 'You can only check your own stats!', ephemeral: true });
+            return interaction.editReply({ content: 'You can only check your own stats!' });
         }
 
         const voiceHours = VoiceTracker.getVoiceHours(userId);
@@ -37,7 +41,7 @@ module.exports = {
             .setColor('#00ff00')
             .setTitle(`📊 HYDROX Stats for ${targetUser.username}`)
             .addFields(
-                { name: '🎤 Voice Time', value: `${voiceHours.toFixed(1)} hours`, inline: true },
+                { name: '🎤 Voice Time', value: formatTime(voiceHours), inline: true },
                 { name: '🏷️ Tag Status', value: hasTag ? '✅ Using HDRX' : '❌ No HDRX tag', inline: true },
                 { name: '⭐ Eligible Roles', value: eligibleRoles.length > 0 ? eligibleRoles.map(r => r.name).join(', ') : 'None yet', inline: false }
             )
@@ -48,7 +52,7 @@ module.exports = {
             const tagNeeded = nextRole.requiresTag && !hasTag ? ' + HDRX tag required' : '';
             embed.addFields({
                 name: '🎯 Next Role',
-                value: `**${nextRole.name}** - ${hoursNeeded.toFixed(1)} hours remaining${tagNeeded}`,
+                value: `**${nextRole.name}** - ${formatTime(hoursNeeded)} remaining${tagNeeded}`,
                 inline: false
             });
         } else {
@@ -59,6 +63,6 @@ module.exports = {
             });
         }
 
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.editReply({ embeds: [embed] });
     },
 };

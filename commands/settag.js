@@ -42,24 +42,35 @@ module.exports = {
             
             await Logger.log('TAG_UPDATE', null, {
                 user: targetUser.tag,
+                userId: targetUser.id,
+                userAvatar: targetUser.displayAvatarURL({ dynamic: true }),
                 hasTag: true,
                 admin: interaction.user.tag
             });
             
             await interaction.reply({ 
-                content: `✅ ${targetUser.tag} is now marked as using the HDRX tag`,
+                content: `✅ ${targetUser.tag} is now marked as using the HDRX tag. Checking for new roles...`,
                 ephemeral: true 
             });
 
-            // Check for new roles
+            // Check for new roles (this will grant any eligible roles now that they have the tag)
             const member = await interaction.guild.members.fetch(userId);
-            await RoleManager.checkAndGrantRoles(member);
+            const rolesGranted = await RoleManager.checkAndGrantRoles(member);
+            
+            if (rolesGranted > 0) {
+                await interaction.followUp({
+                    content: `🎉 Granted ${rolesGranted} new role(s) to ${targetUser.tag}!`,
+                    ephemeral: true
+                });
+            }
 
         } else if (subcommand === 'remove') {
             VoiceTracker.setTagStatus(userId, false);
             
             await Logger.log('TAG_UPDATE', null, {
                 user: targetUser.tag,
+                userId: targetUser.id,
+                userAvatar: targetUser.displayAvatarURL({ dynamic: true }),
                 hasTag: false,
                 admin: interaction.user.tag
             });

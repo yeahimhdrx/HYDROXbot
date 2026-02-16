@@ -47,7 +47,8 @@ module.exports = {
             
             await Logger.log('ADMIN_ACTION', `Added ${hours} hours to voice time`, {
                 admin: interaction.user.tag,
-                target: targetUser.tag
+                target: targetUser.tag,
+                details: `Added ${hours} hours of voice time`
             });
             
             await interaction.reply({ 
@@ -64,7 +65,8 @@ module.exports = {
             
             await Logger.log('ADMIN_ACTION', `Set voice time to ${hours} hours`, {
                 admin: interaction.user.tag,
-                target: targetUser.tag
+                target: targetUser.tag,
+                details: `Voice time set to ${hours} hours`
             });
             
             await interaction.reply({ 
