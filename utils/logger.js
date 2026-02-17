@@ -31,6 +31,37 @@ class Logger {
                 .setFooter({ text: 'HYDROX Logging System' });
 
             switch (type) {
+                // ===== MEMBER EVENTS =====
+                case 'MEMBER_JOIN':
+                    const accountAgeDays = data.accountAge || 0;
+                    const accountAgeColor = accountAgeDays < 7 ? '🔴' : accountAgeDays < 30 ? '🟡' : '🟢';
+                    
+                    embed.setColor('#57f287')
+                        .setAuthor({ name: '👋 Member Joined', iconURL: data.userAvatar })
+                        .setDescription(`${accountAgeColor} <@${data.userId}> joined the server!`)
+                        .addFields(
+                            { name: '👤 Username', value: data.user, inline: true },
+                            { name: '🆔 User ID', value: `\`${data.userId}\``, inline: true },
+                            { name: '👥 Member Count', value: `${data.memberCount}`, inline: true },
+                            { name: '📅 Account Created', value: `${accountAgeDays} days ago`, inline: true },
+                            { name: '⏰ Joined At', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: false }
+                        )
+                        .setThumbnail(data.userAvatar)
+                        .setFooter({ text: `User ID: ${data.userId}` });
+                    break;
+
+                case 'MEMBER_LEAVE':
+                    embed.setColor('#ed4245')
+                        .setAuthor({ name: '👋 Member Left', iconURL: data.userAvatar })
+                        .setDescription(`<@${data.userId}> left the server`)
+                        .addFields(
+                            { name: '👤 Username', value: data.user, inline: true },
+                            { name: '👥 Member Count', value: `${data.memberCount}`, inline: true },
+                            { name: '⏱️ Time in Server', value: data.timeInServer || 'Unknown', inline: true }
+                        )
+                        .setThumbnail(data.userAvatar);
+                    break;
+
                 // ===== ROLE EVENTS =====
                 case 'ROLE_GRANTED':
                     embed.setColor('#00ff00')
