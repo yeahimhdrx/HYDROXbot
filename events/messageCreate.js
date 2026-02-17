@@ -10,7 +10,12 @@ module.exports = {
         if (message.channel.type !== ChannelType.DM) return;
 
         // Your user ID from environment variable
-        const ownerId = process.env.OWNER_ID || '473087068302606338';
+        const ownerId = process.env.OWNER_ID;
+        
+        if (!ownerId) {
+            console.error('❌ OWNER_ID not set in .env file - cannot forward DMs');
+            return;
+        }
 
         console.log(`📨 Received DM from ${message.author.tag}: ${message.content}`);
 

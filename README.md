@@ -67,9 +67,9 @@ The bot automatically grants roles based on voice activity:
 | 𝐀𝐒𝐂𝐄𝐍𝐃𝐀𝐍𝐓 | 40h | No |
 | 𝐄𝐏𝐈𝐂 | 60h | No |
 | 𝐋𝐄𝐆𝐄𝐍𝐃 | 100h | Yes |
-| 𝐄𝐋𝐈𝐓𝐄 | 150h | Yes |
-| 𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍 | 200h | Yes |
-| 𝐌𝐘𝐓𝐇𝐈𝐂 | 250h | Yes |
+| 𝐄𝐋𝐈𝐓𝐄 | 200h | Yes |
+| 𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍 | 300h | Yes |
+| 𝐌𝐘𝐓𝐇𝐈𝐂 | 400h | No |
 
 ## Commands
 

@@ -7,7 +7,7 @@ The bot now automatically sends professional DM reminders to members who have ea
 
 ### Automatic Detection
 - Bot checks voice time after every voice session
-- When a user reaches 100h, 150h, 200h, or 250h without the HDRX tag
+- When a user reaches 100h, 200h, or 300h without the HDRX tag
 - Automatically sends a beautiful DM reminder
 
 ### Smart Reminders
@@ -21,9 +21,9 @@ The bot now automatically sends professional DM reminders to members who have ea
 | Role | Hours Required | Tag Required |
 |------|----------------|--------------|
 | 𝐋𝐄𝐆𝐄𝐍𝐃 | 100h | ✅ Yes |
-| 𝐄𝐋𝐈𝐓𝐄 | 150h | ✅ Yes |
-| 𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍 | 200h | ✅ Yes |
-| 𝐌𝐘𝐓𝐇𝐈𝐂 | 250h | ✅ Yes |
+| 𝐄𝐋𝐈𝐓𝐄 | 200h | ✅ Yes |
+| 𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍 | 300h | ✅ Yes |
+| 𝐌𝐘𝐓𝐇𝐈𝐂 | 400h | ❌ No |
 
 ## DM Message Format
 

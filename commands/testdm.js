@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const RoleManager = require('../utils/roleManager');
 const config = require('../config');
 const { formatTime } = require('../utils/timeFormatter');
@@ -17,9 +17,9 @@ module.exports = {
                     { name: 'Role: ASCENDANT (40h)', value: 'role_ascendant' },
                     { name: 'Role: EPIC (60h)', value: 'role_epic' },
                     { name: 'Role: LEGEND (100h)', value: 'role_legend' },
-                    { name: 'Role: ELITE (150h)', value: 'role_elite' },
-                    { name: 'Role: CHAMPION (200h)', value: 'role_champion' },
-                    { name: 'Role: MYTHIC (250h)', value: 'role_mythic' },
+                    { name: 'Role: ELITE (200h)', value: 'role_elite' },
+                    { name: 'Role: CHAMPION (300h)', value: 'role_champion' },
+                    { name: 'Role: MYTHIC (400h)', value: 'role_mythic' },
                     { name: 'Tag Reminder: LEGEND', value: 'tag_legend' },
                     { name: 'Tag Reminder: ELITE', value: 'tag_elite' }
                 )),
@@ -74,9 +74,9 @@ module.exports = {
                     .setTitle('🏷️ HYDROX Tag Required!')
                     .setDescription(`Hey ${member.user.username}! Great news! 🎉`)
                     .addFields(
-                        { name: '✨ Achievement Unlocked', value: `You've reached **${formatTime(150)}** of voice activity!`, inline: false },
+                        { name: '✨ Achievement Unlocked', value: `You've reached **${formatTime(200)}** of voice activity!`, inline: false },
                         { name: '🎭 Role Available', value: `**𝐄𝐋𝐈𝐓𝐄**`, inline: true },
-                        { name: '⏱️ Required Time', value: `150h ✅`, inline: true },
+                        { name: '⏱️ Required Time', value: `200h ✅`, inline: true },
                         { name: '\u200B', value: '\u200B', inline: false },
                         { name: '🏷️ Next Step', value: `To unlock the **𝐄𝐋𝐈𝐓𝐄** role, please add the **[HDRX]** tag to your Discord username!`, inline: false },
                         { name: '📝 How to Add Tag', value: '1. Click on the server name\n2. Select "Edit Server Profile"\n3. Add **[HDRX]** to your nickname\n4. Let staff know you\'ve added it!', inline: false }
@@ -89,14 +89,14 @@ module.exports = {
 
             await interaction.reply({ 
                 content: `✅ Test DM sent! Check your direct messages to see the beautiful celebration message.`,
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
 
         } catch (error) {
             console.error('Error sending test DM:', error);
             await interaction.reply({ 
                 content: `❌ Could not send DM. Make sure your DMs are open!\n\nError: ${error.message}`,
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
         }
     },

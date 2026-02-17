@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const VoiceTracker = require('../utils/voiceTracker');
 const RoleManager = require('../utils/roleManager');
 const Logger = require('../utils/logger');
@@ -37,6 +37,14 @@ module.exports = {
         const targetUser = interaction.options.getUser('user');
         const userId = targetUser.id;
 
+        // Prevent modifying bots
+        if (targetUser.bot) {
+            return interaction.reply({ 
+                content: '❌ Cannot modify tag status for bots!',
+                flags: MessageFlags.Ephemeral 
+            });
+        }
+
         if (subcommand === 'add') {
             VoiceTracker.setTagStatus(userId, true);
             
@@ -50,7 +58,7 @@ module.exports = {
             
             await interaction.reply({ 
                 content: `✅ ${targetUser.tag} is now marked as using the HDRX tag. Checking for new roles...`,
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
 
             // Check for new roles (this will grant any eligible roles now that they have the tag)
@@ -60,7 +68,7 @@ module.exports = {
             if (rolesGranted > 0) {
                 await interaction.followUp({
                     content: `🎉 Granted ${rolesGranted} new role(s) to ${targetUser.tag}!`,
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -77,7 +85,7 @@ module.exports = {
             
             await interaction.reply({ 
                 content: `✅ ${targetUser.tag} is now marked as NOT using the HDRX tag`,
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
 
         } else if (subcommand === 'check') {
@@ -85,7 +93,7 @@ module.exports = {
             
             await interaction.reply({ 
                 content: `${targetUser.tag} is ${hasTag ? '✅ using' : '❌ NOT using'} the HDRX tag`,
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
         }
     },

@@ -26,11 +26,11 @@ You can now test all the DM messages that the bot sends to users!
    - Shows the beautiful embed asking users to add HDRX tag
 
 4. **Tag Reminder (ELITE)**
-   - Tests the tag reminder for ELITE role (150h)
+   - Tests the tag reminder for ELITE role (200h)
    - Shows the reminder for higher tier role
 
 5. **Tag Reminder (MYTHIC)**
-   - Tests the tag reminder for MYTHIC role (250h)
+   - Tests the tag reminder for MYTHIC role (400h)
    - Shows the reminder for the ultimate role
 
 ## Examples
@@ -102,7 +102,7 @@ Beautiful embeds with:
 
 ### Wrong Message Format
 - This is a test - actual messages use real data
-- Times shown are examples (100h, 150h, 250h)
+- Times shown are examples (100h, 200h, 400h)
 - Your actual username is used
 
 ## Message Types Explained
@@ -124,9 +124,9 @@ You can see all role messages in `config.js`:
 - 𝐀𝐒𝐂𝐄𝐍𝐃𝐀𝐍𝐓 (40h)
 - 𝐄𝐏𝐈𝐂 (60h)
 - 𝐋𝐄𝐆𝐄𝐍𝐃 (100h) - Requires tag
-- 𝐄𝐋𝐈𝐓𝐄 (150h) - Requires tag
-- 𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍 (200h) - Requires tag
-- 𝐌𝐘𝐓𝐇𝐈𝐂 (250h) - Requires tag
+- 𝐄𝐋𝐈𝐓𝐄 (200h) - Requires tag
+- 𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍 (300h) - Requires tag
+- 𝐌𝐘𝐓𝐇𝐈𝐂 (400h)
 
 ## Customizing Messages
 
@@ -145,7 +145,7 @@ You can see all role messages in `config.js`:
 ## Real vs Test Messages
 
 ### Test Messages
-- Use example times (100h, 150h, etc.)
+- Use example times (100h, 200h, etc.)
 - Sent to you (the admin)
 - Triggered manually
 

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const db = require('../utils/database');
 const { formatTime } = require('../utils/timeFormatter');
 
@@ -34,7 +34,7 @@ module.exports = {
                 content: page === 1 
                     ? '📊 No voice activity recorded yet!' 
                     : '📊 No more users on this page. Try a lower page number.',
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
         }
 

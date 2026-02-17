@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const VoiceTracker = require('../utils/voiceTracker');
 const RoleManager = require('../utils/roleManager');
 const config = require('../config');
@@ -14,14 +14,17 @@ module.exports = {
                 .setRequired(false)),
     async execute(interaction) {
         // Defer reply to prevent timeout
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         
         const targetUser = interaction.options.getUser('user') || interaction.user;
         const userId = targetUser.id;
         
         // Only allow checking other users if admin
         if (targetUser.id !== interaction.user.id && !interaction.member.permissions.has('Administrator')) {
-            return interaction.editReply({ content: 'You can only check your own stats!' });
+            return interaction.editReply({ 
+                content: 'You can only check your own stats!',
+                flags: MessageFlags.Ephemeral 
+            });
         }
 
         const voiceHours = VoiceTracker.getVoiceHours(userId);

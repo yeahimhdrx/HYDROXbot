@@ -3,8 +3,18 @@ const fs = require('fs');
 const path = require('path');
 const VoiceTracker = require('./utils/voiceTracker');
 const RoleManager = require('./utils/roleManager');
+const Validator = require('./utils/validator');
+const rateLimiter = require('./utils/rateLimiter');
 const config = require('./config');
 require('dotenv').config();
+
+// Validate environment variables before starting
+try {
+    Validator.validateEnv();
+} catch (error) {
+    console.error('❌ Environment validation failed:', error.message);
+    process.exit(1);
+}
 
 const client = new Client({
     intents: [
@@ -53,14 +63,56 @@ if (fs.existsSync(eventsPath)) {
 
 // Periodic voice activity update
 setInterval(() => {
-    VoiceTracker.updateActiveUsers();
+    try {
+        VoiceTracker.updateActiveUsers();
+    } catch (error) {
+        console.error('❌ Error updating active users:', error);
+    }
 }, config.updateInterval * 1000);
 
 // Periodic role check
 setInterval(async () => {
-    for (const [, guild] of client.guilds.cache) {
-        await RoleManager.checkAllMembers(guild);
+    try {
+        for (const [, guild] of client.guilds.cache) {
+            await RoleManager.checkAllMembers(guild);
+        }
+    } catch (error) {
+        console.error('❌ Error checking roles:', error);
     }
 }, config.checkInterval * 60 * 1000);
 
-client.login(process.env.DISCORD_TOKEN);
+// Periodic rate limiter cleanup
+setInterval(() => {
+    rateLimiter.cleanup();
+}, 300000); // Every 5 minutes
+
+// Validate environment variables before starting
+if (!process.env.DISCORD_TOKEN) {
+    console.error('❌ DISCORD_TOKEN is not set in .env file!');
+    process.exit(1);
+}
+
+if (!process.env.CLIENT_ID) {
+    console.error('❌ CLIENT_ID is not set in .env file!');
+    process.exit(1);
+}
+
+if (!process.env.GUILD_ID) {
+    console.error('❌ GUILD_ID is not set in .env file!');
+    process.exit(1);
+}
+
+// Handle uncaught errors gracefully
+process.on('unhandledRejection', (error) => {
+    console.error('❌ Unhandled promise rejection:', error);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught exception:', error);
+    process.exit(1);
+});
+
+client.login(process.env.DISCORD_TOKEN).catch(error => {
+    console.error('❌ Failed to login:', error);
+    process.exit(1);
+});

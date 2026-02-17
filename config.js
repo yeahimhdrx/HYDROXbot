@@ -29,21 +29,21 @@ module.exports = {
         },
         {
             name: '𝐄𝐋𝐈𝐓𝐄',
-            hours: 150,
+            hours: 200,
             requiresTag: true,
-            message: '💎 Elite status achieved! **𝐄𝐋𝐈𝐓𝐄** role granted for 150 hours of dedication. You\'re among the best in HYDROX Community!'
+            message: '💎 Elite status achieved! **𝐄𝐋𝐈𝐓𝐄** role granted for 200 hours of dedication. You\'re among the best in HYDROX Community!'
         },
         {
             name: '𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍',
-            hours: 200,
+            hours: 300,
             requiresTag: true,
-            message: '👑 Champion! You\'ve reached **𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍** status with 200 hours! Your commitment to HYDROX is unmatched!'
+            message: '👑 Champion! You\'ve reached **𝐂𝐇𝐀𝐌𝐏𝐈𝐎𝐍** status with 300 hours! Your commitment to HYDROX is unmatched!'
         },
         {
             name: '𝐌𝐘𝐓𝐇𝐈𝐂',
-            hours: 250,
-            requiresTag: true,
-            message: '🔥 MYTHIC! You\'ve achieved the ultimate **𝐌𝐘𝐓𝐇𝐈𝐂** role with 250 hours! You\'re a true legend of HYDROX Community!'
+            hours: 400,
+            requiresTag: false,
+            message: '🔥 MYTHIC! You\'ve achieved the ultimate **𝐌𝐘𝐓𝐇𝐈𝐂** role with 400 hours! You\'re a true legend of HYDROX Community!'
         }
     ],
     

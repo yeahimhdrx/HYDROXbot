@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const RoleManager = require('../utils/roleManager');
 
 module.exports = {
@@ -7,7 +7,7 @@ module.exports = {
         .setDescription('Manually check and grant roles for all members (Admin only)')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         
         const totalGranted = await RoleManager.checkAllMembers(interaction.guild);
         

@@ -49,23 +49,22 @@ Users now receive **stunning, personalized celebration embeds** when they earn r
 - **Theme:** Legendary Status
 - **Special:** HDRX Tag Recognition
 
-### 💎 ELITE (150h) - Diamond Tier
+### 💎 ELITE (200h) - Diamond Tier
 - **Color:** Pink (#e91e63)
 - **Emoji:** 💎
 - **Theme:** Elite Excellence
 - **Special:** HDRX Tag Recognition
 
-### 👑 CHAMPION (200h) - Master Tier
+### 👑 CHAMPION (300h) - Master Tier
 - **Color:** Red (#ff6b6b)
 - **Emoji:** 👑
 - **Theme:** Championship
 - **Special:** HDRX Tag Recognition
 
-### 🔥 MYTHIC (250h) - Mythic Tier
+### 🔥 MYTHIC (400h) - Mythic Tier
 - **Color:** Bright Red (#ff0000)
 - **Emoji:** 🔥
 - **Theme:** Ultimate Achievement
-- **Special:** HDRX Tag Recognition
 
 ## Example Message Structure
 
@@ -154,9 +153,9 @@ Thank you for being a true HYDROX member!
 /testdm type:Role: ASCENDANT (40h)
 /testdm type:Role: EPIC (60h)
 /testdm type:Role: LEGEND (100h)
-/testdm type:Role: ELITE (150h)
-/testdm type:Role: CHAMPION (200h)
-/testdm type:Role: MYTHIC (250h)
+/testdm type:Role: ELITE (200h)
+/testdm type:Role: CHAMPION (300h)
+/testdm type:Role: MYTHIC (400h)
 ```
 
 ### What You'll See
@@ -242,4 +241,4 @@ The new celebration messages:
 
 Every user who earns a role will receive a message they'll want to screenshot and share!
 
-Try it: `/testdm type:Role: MYTHIC (250h)`
+Try it: `/testdm type:Role: MYTHIC (400h)`

@@ -3,7 +3,7 @@ const { ActivityType } = require('discord.js');
 const VoiceTracker = require('../utils/voiceTracker');
 
 module.exports = {
-    name: 'ready',
+    name: 'clientReady',
     once: true,
     async execute(client) {
         console.log(`✅ Bot is online as ${client.user.tag}`);

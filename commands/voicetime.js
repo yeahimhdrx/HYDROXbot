@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const VoiceTracker = require('../utils/voiceTracker');
 
 module.exports = {
@@ -37,6 +37,28 @@ module.exports = {
         const db = require('../utils/database');
         const Logger = require('../utils/logger');
 
+        // Input validation
+        if (hours < 0) {
+            return interaction.reply({ 
+                content: '❌ Hours cannot be negative!',
+                flags: MessageFlags.Ephemeral 
+            });
+        }
+
+        if (hours > 10000) {
+            return interaction.reply({ 
+                content: '❌ Hours value too large! Maximum is 10,000 hours.',
+                flags: MessageFlags.Ephemeral 
+            });
+        }
+
+        if (targetUser.bot) {
+            return interaction.reply({ 
+                content: '❌ Cannot modify voice time for bots!',
+                flags: MessageFlags.Ephemeral 
+            });
+        }
+
         if (subcommand === 'add') {
             const stmt = db.prepare(`
                 INSERT INTO voice_activity (user_id, total_minutes) 
@@ -53,7 +75,7 @@ module.exports = {
             
             await interaction.reply({ 
                 content: `✅ Added ${hours} hours to ${targetUser.tag}`,
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
         } else if (subcommand === 'set') {
             const stmt = db.prepare(`
@@ -71,7 +93,7 @@ module.exports = {
             
             await interaction.reply({ 
                 content: `✅ Set ${targetUser.tag}'s voice time to ${hours} hours`,
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral 
             });
         }
 

@@ -60,6 +60,6 @@ Voice time is stored in `data/bot.db`:
 
 Everything is working! The bot will now:
 - Track all voice activity automatically
-- Send tag reminders when users reach 100h, 150h, 200h, 250h
+- Send tag reminders when users reach 100h, 200h, 300h
 - Grant roles automatically when requirements are met
 - Log everything to your staff channel with beautiful embeds

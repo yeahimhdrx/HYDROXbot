@@ -10,6 +10,12 @@ if (!fs.existsSync(dataDir)) {
 
 const db = new Database(path.join(dataDir, 'bot.db'));
 
+// Enable WAL mode for better concurrency
+db.pragma('journal_mode = WAL');
+
+// Enable foreign keys
+db.pragma('foreign_keys = ON');
+
 // Initialize database tables
 db.exec(`
     CREATE TABLE IF NOT EXISTS voice_activity (
