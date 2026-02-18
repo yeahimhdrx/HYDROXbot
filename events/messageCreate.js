@@ -1,12 +1,18 @@
 const { EmbedBuilder, ChannelType } = require('discord.js');
+const MessageCache = require('../utils/messageCache');
 
 module.exports = {
     name: 'messageCreate',
     async execute(message) {
-        // Ignore bot messages
+        // Cache all guild messages for deletion logging
+        if (message.guild && !message.author.bot) {
+            MessageCache.cacheMessage(message);
+        }
+
+        // Ignore bot messages for DM forwarding
         if (message.author.bot) return;
 
-        // Only handle DMs (not server messages)
+        // Only handle DMs (not server messages) for forwarding
         if (message.channel.type !== ChannelType.DM) return;
 
         // Your user ID from environment variable

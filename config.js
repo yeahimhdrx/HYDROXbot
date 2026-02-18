@@ -50,6 +50,9 @@ module.exports = {
     // Check interval in minutes (how often to check and update roles)
     checkInterval: 5,
     
-    // Voice activity update interval in seconds
-    updateInterval: 60
+    // Voice activity update interval in seconds (30s for high precision)
+    updateInterval: 30,
+    
+    // Cleanup interval in hours (clean orphaned sessions)
+    cleanupInterval: 24
 };

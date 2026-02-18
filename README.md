@@ -95,7 +95,8 @@ The bot automatically grants roles based on voice activity:
 1. Set up your `.env` file with:
    - `DISCORD_TOKEN` - Your bot token
    - `CLIENT_ID` - Your bot's client ID
-   - `LOG_CHANNEL_ID` - Channel ID where all bot activities will be logged
+   - `LOG_CHANNEL_ID` - Channel ID where voice and member events will be logged
+   - `ROLE_LOG_CHANNEL_ID` - Channel ID where all role changes will be logged (optional, separate from main logs)
 
 2. Create these exact role names in your Discord server:
    - 𝐅𝐑𝐈𝐄𝐍𝐃𝐒

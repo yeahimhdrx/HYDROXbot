@@ -15,31 +15,32 @@ module.exports = {
 
         // User joined a voice channel
         if (!oldState.channelId && newState.channelId) {
-            VoiceTracker.joinVoice(userId);
-            const totalHours = VoiceTracker.getVoiceHours(userId);
-            const hasTag = VoiceTracker.hasTag(userId);
+            VoiceTracker.joinVoice(userId, newState.channelId, newState.channel.name);
+            const stats = VoiceTracker.getUserStats(userId);
             
             await Logger.log('VOICE_JOIN', null, {
                 user,
                 userId,
                 userAvatar,
                 channel: newState.channel.name,
-                totalHours,
-                hasTag
+                channelId: newState.channelId,
+                totalHours: stats.totalHours,
+                totalSeconds: stats.totalSeconds,
+                sessionCount: stats.sessionCount,
+                hasTag: stats.hasTag
             });
         }
 
         // User left a voice channel
         if (oldState.channelId && !newState.channelId) {
             const sessionMinutes = VoiceTracker.leaveVoice(userId);
-            const totalHours = VoiceTracker.getVoiceHours(userId);
-            const hasTag = VoiceTracker.hasTag(userId);
+            const stats = VoiceTracker.getUserStats(userId);
             
             // Find next role
             let nextRole = null;
             for (const roleConfig of config.roles) {
-                if (totalHours < roleConfig.hours) {
-                    if (!roleConfig.requiresTag || hasTag) {
+                if (stats.totalHours < roleConfig.hours) {
+                    if (!roleConfig.requiresTag || stats.hasTag) {
                         nextRole = roleConfig;
                         break;
                     }
@@ -51,8 +52,12 @@ module.exports = {
                 userId,
                 userAvatar,
                 channel: oldState.channel.name,
+                channelId: oldState.channelId,
                 sessionMinutes: sessionMinutes,
-                totalHours: totalHours,
+                sessionSeconds: stats.lastSessionSeconds,
+                totalHours: stats.totalHours,
+                totalSeconds: stats.totalSeconds,
+                sessionCount: stats.sessionCount,
                 nextRole: nextRole
             });
 
@@ -64,6 +69,8 @@ module.exports = {
         if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
             // Try to get who moved the user from audit logs
             let executor = null;
+            let executorId = null;
+            let executorAvatar = null;
             try {
                 const auditLogs = await oldState.guild.fetchAuditLogs({
                     limit: 1,
@@ -72,6 +79,8 @@ module.exports = {
                 const moveLog = auditLogs.entries.first();
                 if (moveLog && moveLog.target.id === userId && (Date.now() - moveLog.createdTimestamp) < 5000) {
                     executor = moveLog.executor.tag;
+                    executorId = moveLog.executor.id;
+                    executorAvatar = moveLog.executor.displayAvatarURL({ dynamic: true });
                 }
             } catch (error) {
                 // Ignore audit log errors
@@ -83,16 +92,20 @@ module.exports = {
                 userAvatar,
                 oldChannel: oldState.channel.name,
                 newChannel: newState.channel.name,
-                executor: executor
+                executor: executor,
+                executorId: executorId,
+                executorAvatar: executorAvatar
             });
         }
 
         // Mute status changed
         if (oldState.channelId && newState.channelId) {
-            // Server mute
+            // Server mute (only log if done by another user)
             if (oldState.serverMute !== newState.serverMute) {
                 // Try to get who muted/unmuted the user from audit logs
                 let executor = null;
+                let executorId = null;
+                let executorAvatar = null;
                 try {
                     const auditLogs = await oldState.guild.fetchAuditLogs({
                         limit: 1,
@@ -101,36 +114,38 @@ module.exports = {
                     const muteLog = auditLogs.entries.first();
                     if (muteLog && muteLog.target.id === userId && (Date.now() - muteLog.createdTimestamp) < 5000) {
                         executor = muteLog.executor.tag;
+                        executorId = muteLog.executor.id;
+                        executorAvatar = muteLog.executor.displayAvatarURL({ dynamic: true });
                     }
                 } catch (error) {
                     // Ignore audit log errors
                 }
 
-                await Logger.log(newState.serverMute ? 'VOICE_MUTE' : 'VOICE_UNMUTE', null, {
-                    user,
-                    userId,
-                    userAvatar,
-                    channel: newState.channel.name,
-                    selfMute: false,
-                    executor: executor
-                });
+                // Only log if there's an executor (someone else muted them)
+                if (executor) {
+                    await Logger.log(newState.serverMute ? 'VOICE_MUTE' : 'VOICE_UNMUTE', null, {
+                        user,
+                        userId,
+                        userAvatar,
+                        channel: newState.channel.name,
+                        executor: executor,
+                        executorId: executorId,
+                        executorAvatar: executorAvatar
+                    });
+                }
             }
 
-            // Self mute
-            if (oldState.selfMute !== newState.selfMute) {
-                await Logger.log(newState.selfMute ? 'VOICE_MUTE' : 'VOICE_UNMUTE', null, {
-                    user,
-                    userId,
-                    userAvatar,
-                    channel: newState.channel.name,
-                    selfMute: true
-                });
-            }
+            // Self mute - SKIP LOGGING (as requested)
+            // if (oldState.selfMute !== newState.selfMute) {
+            //     // Not logged per user request
+            // }
 
-            // Server deafen
+            // Server deafen (only log if done by another user)
             if (oldState.serverDeaf !== newState.serverDeaf) {
                 // Try to get who deafened/undeafened the user from audit logs
                 let executor = null;
+                let executorId = null;
+                let executorAvatar = null;
                 try {
                     const auditLogs = await oldState.guild.fetchAuditLogs({
                         limit: 1,
@@ -139,31 +154,31 @@ module.exports = {
                     const deafLog = auditLogs.entries.first();
                     if (deafLog && deafLog.target.id === userId && (Date.now() - deafLog.createdTimestamp) < 5000) {
                         executor = deafLog.executor.tag;
+                        executorId = deafLog.executor.id;
+                        executorAvatar = deafLog.executor.displayAvatarURL({ dynamic: true });
                     }
                 } catch (error) {
                     // Ignore audit log errors
                 }
 
-                await Logger.log(newState.serverDeaf ? 'VOICE_DEAF' : 'VOICE_UNDEAF', null, {
-                    user,
-                    userId,
-                    userAvatar,
-                    channel: newState.channel.name,
-                    selfDeaf: false,
-                    executor: executor
-                });
+                // Only log if there's an executor (someone else deafened them)
+                if (executor) {
+                    await Logger.log(newState.serverDeaf ? 'VOICE_DEAF' : 'VOICE_UNDEAF', null, {
+                        user,
+                        userId,
+                        userAvatar,
+                        channel: newState.channel.name,
+                        executor: executor,
+                        executorId: executorId,
+                        executorAvatar: executorAvatar
+                    });
+                }
             }
 
-            // Self deafen
-            if (oldState.selfDeaf !== newState.selfDeaf) {
-                await Logger.log(newState.selfDeaf ? 'VOICE_DEAF' : 'VOICE_UNDEAF', null, {
-                    user,
-                    userId,
-                    userAvatar,
-                    channel: newState.channel.name,
-                    selfDeaf: true
-                });
-            }
+            // Self deafen - SKIP LOGGING (as requested)
+            // if (oldState.selfDeaf !== newState.selfDeaf) {
+            //     // Not logged per user request
+            // }
 
             // Streaming status
             if (oldState.streaming !== newState.streaming) {

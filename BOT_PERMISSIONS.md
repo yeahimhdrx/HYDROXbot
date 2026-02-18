@@ -18,8 +18,8 @@
 - **Embed Links** - Required for rich embed messages
   - Used by: All logging, stats command, celebration messages
   
-- **Read Message History** - Required for context in channels
-  - Used by: Message handling, logging system
+- **Read Message History** - Required for context in channels and message deletion logging
+  - Used by: Message handling, logging system, deletion tracking
 
 ### Voice Permissions
 - **Connect** - Required to detect voice channel activity
@@ -32,6 +32,9 @@
 - **Manage Roles** - Required to grant roles to users
   - Used by: Role granting system (core feature)
 
+- **View Audit Log** - Required to identify who made role changes
+  - Used by: Role logging system (to show moderator names)
+
 ## Permissions NOT Currently Needed
 - ❌ Administrator - Too broad, security risk
 - ❌ Manage Server - Not needed for current features
@@ -41,7 +44,6 @@
 - ❌ Manage Nicknames - Not changing user nicknames
 - ❌ Manage Webhooks - Not using webhooks
 - ❌ Manage Emojis - Not managing server emojis
-- ❌ View Audit Log - Not needed for current features
 - ❌ Manage Messages - Not deleting/editing messages
 - ❌ Mention Everyone - Not needed
 - ❌ Use External Emojis - Not needed
@@ -53,7 +55,6 @@
 - Kick Members - For kick command
 - Ban Members - For ban command
 - Manage Messages - For message cleanup
-- View Audit Log - For moderation logging
 
 ### If Adding Channel Management
 - Manage Channels - For creating voice/text channels

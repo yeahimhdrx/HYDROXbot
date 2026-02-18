@@ -53,15 +53,33 @@ Your bot now has a comprehensive, professional logging system that tracks EVERYT
 
 ## 🎯 Log Channel Setup
 
-Your logs go to the channel specified in `.env`:
+Your logs go to channels specified in `.env`:
+
+### Main Log Channel (Voice & Member Events)
 ```
 LOG_CHANNEL_ID=1472934610588537045
 ```
+Logs: Voice joins/leaves, member joins/leaves, voice activities (streaming, camera, etc.)
+
+### Role Log Channel (Role Changes Only)
+```
+ROLE_LOG_CHANNEL_ID=your_role_log_channel_id
+```
+Logs: All role additions, removals, and bot-granted roles
 
 **Recommended Setup:**
-1. Create a private channel (e.g., #staff-logs or #bot-logs)
+1. Create two private channels:
+   - `#bot-logs` for general activity (voice, members)
+   - `#role-logs` for role changes only
 2. Only give access to staff/admins
-3. The bot will send all events there automatically
+3. The bot will automatically route logs to the appropriate channel
+4. Role log channel is optional - if not set, role logs go to main channel
+
+**Benefits of Separate Role Logs:**
+- Easy to audit role changes
+- Track who is adding/removing roles
+- Monitor bot's automatic role grants
+- Keep role management separate from activity logs
 
 ## 🔍 Reading the Logs
 

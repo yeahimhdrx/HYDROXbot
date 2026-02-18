@@ -1,10 +1,11 @@
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, Partials } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const VoiceTracker = require('./utils/voiceTracker');
 const RoleManager = require('./utils/roleManager');
 const Validator = require('./utils/validator');
 const rateLimiter = require('./utils/rateLimiter');
+const MessageCache = require('./utils/messageCache');
 const config = require('./config');
 require('dotenv').config();
 
@@ -24,6 +25,11 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildModeration,
+    ],
+    partials: [
+        Partials.Message,
+        Partials.Channel,
+        Partials.Reaction,
     ]
 });
 
@@ -61,7 +67,7 @@ if (fs.existsSync(eventsPath)) {
     }
 }
 
-// Periodic voice activity update
+// Periodic voice activity update (every 30 seconds for precision)
 setInterval(() => {
     try {
         VoiceTracker.updateActiveUsers();
@@ -69,6 +75,34 @@ setInterval(() => {
         console.error('❌ Error updating active users:', error);
     }
 }, config.updateInterval * 1000);
+
+// Periodic cleanup of orphaned sessions (every 24 hours)
+setInterval(() => {
+    try {
+        VoiceTracker.cleanupOrphanedSessions();
+    } catch (error) {
+        console.error('❌ Error cleaning up orphaned sessions:', error);
+    }
+}, (config.cleanupInterval || 24) * 60 * 60 * 1000);
+
+// Run cleanup on startup
+setTimeout(() => {
+    try {
+        VoiceTracker.cleanupOrphanedSessions();
+        MessageCache.cleanOldMessages();
+    } catch (error) {
+        console.error('❌ Error cleaning up orphaned sessions:', error);
+    }
+}, 5000); // Wait 5 seconds after startup
+
+// Periodic cleanup of old cached messages (every 24 hours)
+setInterval(() => {
+    try {
+        MessageCache.cleanOldMessages();
+    } catch (error) {
+        console.error('❌ Error cleaning up old messages:', error);
+    }
+}, 24 * 60 * 60 * 1000);
 
 // Periodic role check
 setInterval(async () => {
