@@ -24,8 +24,8 @@ RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && \
+# Install dependencies (use npm install instead of ci for flexibility)
+RUN npm install --only=production && \
     npm cache clean --force
 
 # Copy application code
