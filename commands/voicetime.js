@@ -61,11 +61,11 @@ module.exports = {
 
         if (subcommand === 'add') {
             const stmt = db.prepare(`
-                INSERT INTO voice_activity (user_id, total_minutes) 
+                INSERT INTO voice_activity (user_id, total_seconds) 
                 VALUES (?, ?)
-                ON CONFLICT(user_id) DO UPDATE SET total_minutes = total_minutes + ?
+                ON CONFLICT(user_id) DO UPDATE SET total_seconds = total_seconds + ?
             `);
-            stmt.run(targetUser.id, hours * 60, hours * 60);
+            stmt.run(targetUser.id, hours * 3600, hours * 3600);
             
             await Logger.log('ADMIN_ACTION', `Added ${hours} hours to voice time`, {
                 admin: interaction.user.tag,
@@ -79,11 +79,11 @@ module.exports = {
             });
         } else if (subcommand === 'set') {
             const stmt = db.prepare(`
-                INSERT INTO voice_activity (user_id, total_minutes) 
+                INSERT INTO voice_activity (user_id, total_seconds) 
                 VALUES (?, ?)
-                ON CONFLICT(user_id) DO UPDATE SET total_minutes = ?
+                ON CONFLICT(user_id) DO UPDATE SET total_seconds = ?
             `);
-            stmt.run(targetUser.id, hours * 60, hours * 60);
+            stmt.run(targetUser.id, hours * 3600, hours * 3600);
             
             await Logger.log('ADMIN_ACTION', `Set voice time to ${hours} hours`, {
                 admin: interaction.user.tag,

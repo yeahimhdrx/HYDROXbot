@@ -21,10 +21,10 @@ module.exports = {
 
         // Get top users from database
         const stmt = db.prepare(`
-            SELECT user_id, total_minutes, has_tag 
+            SELECT user_id, total_seconds, has_tag 
             FROM voice_activity 
-            WHERE total_minutes > 0
-            ORDER BY total_minutes DESC 
+            WHERE total_seconds > 0
+            ORDER BY total_seconds DESC 
             LIMIT ? OFFSET ?
         `);
         const topUsers = stmt.all(itemsPerPage, offset);
@@ -39,7 +39,7 @@ module.exports = {
         }
 
         // Get total count
-        const countStmt = db.prepare('SELECT COUNT(*) as count FROM voice_activity WHERE total_minutes > 0');
+        const countStmt = db.prepare('SELECT COUNT(*) as count FROM voice_activity WHERE total_seconds > 0');
         const totalCount = countStmt.get().count;
         const totalPages = Math.ceil(totalCount / itemsPerPage);
 
@@ -48,7 +48,7 @@ module.exports = {
         for (let i = 0; i < topUsers.length; i++) {
             const rank = offset + i + 1;
             const userData = topUsers[i];
-            const hours = userData.total_minutes / 60;
+            const hours = userData.total_seconds / 3600;
             const hasTag = userData.has_tag === 1;
 
             // Try to get user from guild
