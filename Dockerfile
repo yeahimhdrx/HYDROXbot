@@ -1,41 +1,44 @@
-# Use Node.js LTS (Alpine for smaller size and better security)
-FROM node:18-alpine
+# Use Node 20 with full build tools (not Alpine)
+FROM node:20-bullseye-slim
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install system dependencies for canvas and better-sqlite3
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    build-essential \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-dev \
+    libpixman-1-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /app
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
 
 # Copy package files
-COPY --chown=nodejs:nodejs package*.json ./
+COPY package*.json ./
 
-# Install dependencies (production only)
+# Install dependencies
 RUN npm ci --only=production && \
     npm cache clean --force
 
-# Copy app source
+# Copy application code
 COPY --chown=nodejs:nodejs . .
 
-# Create data directory with proper permissions
-RUN mkdir -p data && \
-    chown -R nodejs:nodejs data
+# Create data directory for SQLite
+RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
 
 # Switch to non-root user
 USER nodejs
 
-# Expose no ports (bot doesn't need any)
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
-  CMD node -e "console.log('healthy')" || exit 1
-
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
+# Expose port (optional, for future web dashboard)
+EXPOSE 3000
 
 # Start the bot
 CMD ["node", "index.js"]
