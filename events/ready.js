@@ -1,4 +1,5 @@
 const Logger = require('../utils/logger');
+const InviteTracker = require('../utils/inviteTracker');
 const { ActivityType } = require('discord.js');
 const VoiceTracker = require('../utils/voiceTracker');
 
@@ -16,6 +17,11 @@ module.exports = {
         client.guilds.cache.forEach(guild => {
             totalUsers += guild.memberCount;
         });
+        
+        // Initialize invite tracking for all guilds
+        for (const [, guild] of client.guilds.cache) {
+            await InviteTracker.cacheInvites(guild);
+        }
         
         // Initialize tracking for users already in voice channels
         for (const [, guild] of client.guilds.cache) {

@@ -68,11 +68,31 @@ db.exec(`
         cached_at INTEGER DEFAULT (strftime('%s', 'now'))
     );
 
+    CREATE TABLE IF NOT EXISTS invites (
+        user_id TEXT PRIMARY KEY,
+        total_invites INTEGER DEFAULT 0,
+        valid_invites INTEGER DEFAULT 0,
+        left_invites INTEGER DEFAULT 0,
+        fake_invites INTEGER DEFAULT 0,
+        last_updated INTEGER DEFAULT (strftime('%s', 'now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS invite_roles_granted (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        role_name TEXT NOT NULL,
+        invites_required INTEGER NOT NULL,
+        granted_at INTEGER DEFAULT (strftime('%s', 'now')),
+        UNIQUE(user_id, role_name)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_voice_sessions_user ON voice_sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_voice_sessions_date ON voice_sessions(created_at);
     CREATE INDEX IF NOT EXISTS idx_message_cache_user ON message_cache(user_id);
     CREATE INDEX IF NOT EXISTS idx_message_cache_channel ON message_cache(channel_id);
     CREATE INDEX IF NOT EXISTS idx_message_cache_created ON message_cache(created_at);
+    CREATE INDEX IF NOT EXISTS idx_invites_user ON invites(user_id);
+    CREATE INDEX IF NOT EXISTS idx_invites_valid ON invites(valid_invites);
 `);
 
 // Migrate existing data from minutes to seconds if needed

@@ -609,6 +609,107 @@ class Logger {
                         );
                     break;
 
+                // ===== INVITE EVENTS =====
+                case 'INVITE_ROLE_EARNED':
+                    // Futuristic professional celebration embed
+                    const roleEmojis = {
+                        '𝐒𝐂𝐎𝐔𝐓': '🔍',
+                        '𝐑𝐄𝐂𝐑𝐔𝐈𝐓𝐄𝐑': '📢',
+                        '𝐀𝐌𝐁𝐀𝐒𝐒𝐀𝐃𝐎𝐑': '🌟',
+                        '𝐈𝐍𝐅𝐋𝐔𝐄𝐍𝐂𝐄𝐑': '💎',
+                        '𝐏𝐀𝐑𝐓𝐍𝐄𝐑': '👑',
+                        '𝐒𝐎𝐕𝐄𝐑𝐄𝐈𝐆𝐍': '⚡'
+                    };
+
+                    const roleColors = {
+                        '𝐒𝐂𝐎𝐔𝐓': '#00d4ff',
+                        '𝐑𝐄𝐂𝐑𝐔𝐈𝐓𝐄𝐑': '#7c3aed',
+                        '𝐀𝐌𝐁𝐀𝐒𝐒𝐀𝐃𝐎𝐑': '#ec4899',
+                        '𝐈𝐍𝐅𝐋𝐔𝐄𝐍𝐂𝐄𝐑': '#f59e0b',
+                        '𝐏𝐀𝐑𝐓𝐍𝐄𝐑': '#ef4444',
+                        '𝐒𝐎𝐕𝐄𝐑𝐄𝐈𝐆𝐍': '#FFD700'
+                    };
+
+                    const emoji = roleEmojis[data.roleName] || '🎉';
+                    const color = roleColors[data.roleName] || '#00d4ff';
+
+                    // Create progress bar for next role
+                    let progressBar = '';
+                    if (data.nextRole) {
+                        const progress = (data.invites / data.nextRole.invites) * 100;
+                        const filled = Math.round(progress / 5);
+                        const empty = 20 - filled;
+                        progressBar = '▰'.repeat(filled) + '▱'.repeat(empty);
+                    }
+
+                    embed.setColor(color)
+                        .setAuthor({ 
+                            name: '🔔 NEW INVITE MILESTONE ACHIEVED!',
+                            iconURL: data.userAvatar
+                        })
+                        .setTitle(`${emoji} **CONGRATULATIONS!** ${emoji}`)
+                        .setDescription(
+                            `<@${data.userId}> has reached **${data.invites} invites** and earned\n` +
+                            `the prestigious **${data.roleName}** role!`
+                        )
+                        .addFields(
+                            {
+                                name: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                                value: '\u200b',
+                                inline: false
+                            },
+                            {
+                                name: `${emoji} Role Earned`,
+                                value: `<@&${data.roleId}>`,
+                                inline: true
+                            },
+                            {
+                                name: '📊 Total Invites',
+                                value: `\`${data.invites}\``,
+                                inline: true
+                            },
+                            {
+                                name: '🎯 Required',
+                                value: `\`${data.required}\``,
+                                inline: true
+                            },
+                            {
+                                name: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+                                value: '\u200b',
+                                inline: false
+                            }
+                        )
+                        .setThumbnail(data.userAvatar)
+                        .setImage('https://i.postimg.cc/ncKDwxkD/image.jpg')
+                        .setFooter({ 
+                            text: `⚡ HYDROX Community • Invite Rewards System • Today at ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`,
+                            iconURL: data.guildIcon 
+                        })
+                        .setTimestamp();
+
+                    // Add next milestone or max rank
+                    if (data.nextRole) {
+                        const remaining = data.nextRole.invites - data.invites;
+                        embed.addFields({
+                            name: `🎯 Next Milestone: ${data.nextRole.name}`,
+                            value: `${progressBar}\n\`${data.invites}\` / \`${data.nextRole.invites}\` invites • **${remaining}** more to go!`,
+                            inline: false
+                        });
+                    } else {
+                        embed.addFields({
+                            name: '👑 Maximum Rank Achieved!',
+                            value: 'You have reached the highest invite rank! You are a legend! 🔥',
+                            inline: false
+                        });
+                    }
+
+                    embed.addFields({
+                        name: '\u200b',
+                        value: 'Thank you for growing our community! 💪\nKeep inviting to unlock even more exclusive roles!',
+                        inline: false
+                    });
+                    break;
+
                 default:
                     embed.setColor('#95a5a6')
                         .setAuthor({ name: '📝 System Log' })
