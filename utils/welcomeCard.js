@@ -1,5 +1,13 @@
-const { createCanvas, loadImage } = require('canvas');
+const canvasHelper = require('./canvasHelper');
 const { AttachmentBuilder } = require('discord.js');
+
+// Only load canvas functions if available
+let createCanvas, loadImage;
+if (canvasHelper.isAvailable()) {
+    const canvas = canvasHelper.getCanvas();
+    createCanvas = canvas.createCanvas;
+    loadImage = canvas.loadImage;
+}
 
 class WelcomeCard {
     constructor() {
@@ -12,11 +20,24 @@ class WelcomeCard {
     }
 
     /**
+     * Check if canvas is available
+     */
+    isCanvasAvailable() {
+        return canvasHelper.isAvailable();
+    }
+
+    /**
      * Create a premium welcome card
      * @param {GuildMember} member - The member who joined
      * @returns {AttachmentBuilder} - Discord attachment
      */
     async create(member) {
+        // If canvas not available, return null (will use fallback embed)
+        if (!canvasHelper.isAvailable()) {
+            console.log('[WelcomeCard] Canvas not available, using fallback embed');
+            return null;
+        }
+
         try {
             // Create canvas
             const canvas = createCanvas(this.width, this.height);

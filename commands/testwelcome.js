@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const canvasHelper = require('../utils/canvasHelper');
 const WelcomeCard = require('../utils/welcomeCard');
 
 module.exports = {
@@ -16,6 +17,14 @@ module.exports = {
         try {
             const targetUser = interaction.options.getUser('user') || interaction.user;
             const member = await interaction.guild.members.fetch(targetUser.id);
+
+            // Check if canvas is available
+            if (!canvasHelper.isAvailable()) {
+                await interaction.editReply({
+                    content: '⚠️ Canvas module not available locally. Welcome cards work on Railway.\n' +
+                             'Using fallback embed instead:'
+                });
+            }
 
             // Create welcome card
             const welcomeCardGenerator = new WelcomeCard();

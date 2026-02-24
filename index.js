@@ -42,10 +42,14 @@ if (fs.existsSync(commandsPath)) {
     
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
-        const command = require(filePath);
-        
-        if ('data' in command && 'execute' in command) {
-            client.commands.set(command.data.name, command);
+        try {
+            const command = require(filePath);
+            
+            if ('data' in command && 'execute' in command) {
+                client.commands.set(command.data.name, command);
+            }
+        } catch (error) {
+            console.warn(`⚠️ Could not load command ${file}: ${error.message}`);
         }
     }
 }
@@ -57,12 +61,16 @@ if (fs.existsSync(eventsPath)) {
     
     for (const file of eventFiles) {
         const filePath = path.join(eventsPath, file);
-        const event = require(filePath);
-        
-        if (event.once) {
-            client.once(event.name, (...args) => event.execute(...args));
-        } else {
-            client.on(event.name, (...args) => event.execute(...args));
+        try {
+            const event = require(filePath);
+            
+            if (event.once) {
+                client.once(event.name, (...args) => event.execute(...args));
+            } else {
+                client.on(event.name, (...args) => event.execute(...args));
+            }
+        } catch (error) {
+            console.warn(`⚠️ Could not load event ${file}: ${error.message}`);
         }
     }
 }

@@ -3,12 +3,26 @@ const { formatTime, formatMinutes } = require('./timeFormatter');
 
 class Logger {
     static client = null;
-    static logChannelId = process.env.LOG_CHANNEL_ID;
-    static roleLogChannelId = process.env.ROLE_LOG_CHANNEL_ID;
-    static deletedMessagesLogChannelId = process.env.DELETED_MESSAGES_LOG_CHANNEL_ID;
 
     static setClient(client) {
         this.client = client;
+        // Log the channel IDs when client is set to verify they're loaded
+        console.log('[Logger] Initialized with channels:');
+        console.log(`  - Main Log: ${process.env.LOG_CHANNEL_ID || 'NOT SET'}`);
+        console.log(`  - Role Log: ${process.env.ROLE_LOG_CHANNEL_ID || 'NOT SET'}`);
+        console.log(`  - Deleted Messages: ${process.env.DELETED_MESSAGES_LOG_CHANNEL_ID || 'NOT SET'}`);
+    }
+
+    static get logChannelId() {
+        return process.env.LOG_CHANNEL_ID;
+    }
+
+    static get roleLogChannelId() {
+        return process.env.ROLE_LOG_CHANNEL_ID;
+    }
+
+    static get deletedMessagesLogChannelId() {
+        return process.env.DELETED_MESSAGES_LOG_CHANNEL_ID;
     }
 
     static createProgressBar(percentage) {

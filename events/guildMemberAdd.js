@@ -1,3 +1,4 @@
+const canvasHelper = require('../utils/canvasHelper');
 const WelcomeCard = require('../utils/welcomeCard');
 const { EmbedBuilder } = require('discord.js');
 
