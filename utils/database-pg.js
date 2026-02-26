@@ -96,7 +96,7 @@ async function initDatabase() {
     }
 }
 
-// Wrapper to make PostgreSQL work like better-sqlite3
+// Wrapper to make PostgreSQL work like better-sqlite3 (synchronous)
 class PostgreSQLAdapter {
     constructor() {
         this.pool = pool;
@@ -106,30 +106,96 @@ class PostgreSQLAdapter {
         const self = this;
         
         // Convert SQLite syntax to PostgreSQL
-        let pgSql = sql
-            .replace(/\?/g, (match, offset, string) => {
-                const count = string.substring(0, offset).split('?').length;
-                return `$${count}`;
-            })
+        let paramCount = 0;
+        const pgSql = sql
+            .replace(/\?/g, () => `$${++paramCount}`)
             .replace(/INSERT OR REPLACE/gi, 'INSERT')
             .replace(/INSERT OR IGNORE/gi, 'INSERT')
             .replace(/ON CONFLICT\((\w+)\) DO UPDATE SET/gi, 'ON CONFLICT ($1) DO UPDATE SET');
 
+        // Return synchronous-like interface using deasync
+        const deasync = require('deasync');
+
         return {
             get: (...params) => {
-                return pool.query(pgSql, params).then(result => result.rows[0]);
+                let result;
+                let done = false;
+                let error;
+
+                pool.query(pgSql, params)
+                    .then(res => {
+                        result = res.rows[0];
+                        done = true;
+                    })
+                    .catch(err => {
+                        error = err;
+                        done = true;
+                    });
+
+                deasync.loopWhile(() => !done);
+                
+                if (error) throw error;
+                return result;
             },
             all: (...params) => {
-                return pool.query(pgSql, params).then(result => result.rows);
+                let result;
+                let done = false;
+                let error;
+
+                pool.query(pgSql, params)
+                    .then(res => {
+                        result = res.rows;
+                        done = true;
+                    })
+                    .catch(err => {
+                        error = err;
+                        done = true;
+                    });
+
+                deasync.loopWhile(() => !done);
+                
+                if (error) throw error;
+                return result;
             },
             run: (...params) => {
-                return pool.query(pgSql, params).then(result => ({ changes: result.rowCount }));
+                let result;
+                let done = false;
+                let error;
+
+                pool.query(pgSql, params)
+                    .then(res => {
+                        result = { changes: res.rowCount };
+                        done = true;
+                    })
+                    .catch(err => {
+                        error = err;
+                        done = true;
+                    });
+
+                deasync.loopWhile(() => !done);
+                
+                if (error) throw error;
+                return result;
             }
         };
     }
 
     exec(sql) {
-        return pool.query(sql);
+        const deasync = require('deasync');
+        let done = false;
+        let error;
+
+        pool.query(sql)
+            .then(() => { done = true; })
+            .catch(err => {
+                error = err;
+                done = true;
+            });
+
+        deasync.loopWhile(() => !done);
+        
+        if (error) throw error;
+        return this;
     }
 
     pragma() {
