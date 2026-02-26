@@ -273,31 +273,6 @@ class InviteTracker {
         }
 
         return grantedRoles;
-    }                    continue;
-                }
-
-                // Check if user already has the role
-                if (member.roles.cache.has(role.id)) {
-                    // Mark as granted even if they already have it
-                    this.markRoleGranted(member.user.id, roleConfig.name, roleConfig.invites);
-                    continue;
-                }
-
-                await member.roles.add(role);
-                this.markRoleGranted(member.user.id, roleConfig.name, roleConfig.invites);
-                
-                grantedRoles.push({
-                    role: role,
-                    config: roleConfig
-                });
-
-                console.log(`[InviteTracker] Granted ${roleConfig.name} to ${member.user.tag}`);
-            } catch (error) {
-                console.error(`[InviteTracker] Error granting role ${roleConfig.name}:`, error.message);
-            }
-        }
-
-        return grantedRoles;
     }
 }
 
