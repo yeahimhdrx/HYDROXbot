@@ -173,11 +173,8 @@ class VoiceTracker {
             LIMIT ?
         `, [limit]);
     }
-}
 
-module.exports = VoiceTracker;
- 
-   /**
+    /**
      * Clean up orphaned sessions (sessions without end time older than 24 hours)
      */
     static async cleanupOrphanedSessions() {
