@@ -1,4 +1,4 @@
-const db = require('./database');
+const db = require('./database-adapter');
 
 class InviteTracker {
     // Store invite cache in memory

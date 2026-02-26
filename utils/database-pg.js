@@ -103,10 +103,11 @@ class PostgreSQLAdapter {
     }
 
     prepare(sql) {
+        const self = this;
+        
         // Convert SQLite syntax to PostgreSQL
-        const pgSql = sql
+        let pgSql = sql
             .replace(/\?/g, (match, offset, string) => {
-                // Count how many ? came before this one
                 const count = string.substring(0, offset).split('?').length;
                 return `$${count}`;
             })
@@ -115,17 +116,14 @@ class PostgreSQLAdapter {
             .replace(/ON CONFLICT\((\w+)\) DO UPDATE SET/gi, 'ON CONFLICT ($1) DO UPDATE SET');
 
         return {
-            get: async (...params) => {
-                const result = await pool.query(pgSql, params);
-                return result.rows[0];
+            get: (...params) => {
+                return pool.query(pgSql, params).then(result => result.rows[0]);
             },
-            all: async (...params) => {
-                const result = await pool.query(pgSql, params);
-                return result.rows;
+            all: (...params) => {
+                return pool.query(pgSql, params).then(result => result.rows);
             },
-            run: async (...params) => {
-                const result = await pool.query(pgSql, params);
-                return { changes: result.rowCount };
+            run: (...params) => {
+                return pool.query(pgSql, params).then(result => ({ changes: result.rowCount }));
             }
         };
     }
@@ -135,7 +133,7 @@ class PostgreSQLAdapter {
     }
 
     pragma() {
-        // PostgreSQL doesn't use pragma, ignore
+        // PostgreSQL doesn't use pragma, return this for chaining
         return this;
     }
 }

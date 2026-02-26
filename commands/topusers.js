@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const db = require('../utils/database');
+const db = require('../utils/database-adapter');
 const { formatTime } = require('../utils/timeFormatter');
 
 module.exports = {

@@ -1,4 +1,4 @@
-const db = require('./database');
+const db = require('./database-adapter');
 
 class VoiceTracker {
     // Get user's total voice time in hours (with decimal precision)

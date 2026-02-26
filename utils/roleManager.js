@@ -1,6 +1,6 @@
 const config = require('../config');
 const VoiceTracker = require('./voiceTracker');
-const db = require('./database');
+const db = require('./database-adapter');
 const { EmbedBuilder } = require('discord.js');
 const { formatTime } = require('./timeFormatter');
 

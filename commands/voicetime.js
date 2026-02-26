@@ -34,7 +34,7 @@ module.exports = {
         const subcommand = interaction.options.getSubcommand();
         const targetUser = interaction.options.getUser('user');
         const hours = interaction.options.getInteger('hours');
-        const db = require('../utils/database');
+        const db = require('../utils/database-adapter');
         const Logger = require('../utils/logger');
 
         // Input validation
