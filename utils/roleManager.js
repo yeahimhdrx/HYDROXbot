@@ -1,20 +1,19 @@
 const config = require('../config');
 const VoiceTracker = require('./voiceTracker');
-const db = require('./database-adapter');
+const db = require('./database-async');
 const { EmbedBuilder } = require('discord.js');
 const { formatTime } = require('./timeFormatter');
 
 class RoleManager {
     // Check if user was already reminded about a specific role
-    static wasReminded(userId, roleName) {
-        const stmt = db.prepare('SELECT * FROM tag_reminders WHERE user_id = ? AND role_name = ?');
-        return stmt.get(userId, roleName) !== undefined;
+    static async wasReminded(userId, roleName) {
+        const result = await db.get('SELECT * FROM tag_reminders WHERE user_id = ? AND role_name = ?', [userId, roleName]);
+        return result !== undefined;
     }
 
     // Mark that user was reminded about a role
-    static markReminded(userId, roleName) {
-        const stmt = db.prepare('INSERT OR IGNORE INTO tag_reminders (user_id, role_name) VALUES (?, ?)');
-        stmt.run(userId, roleName);
+    static async markReminded(userId, roleName) {
+        await db.run('INSERT OR IGNORE INTO tag_reminders (user_id, role_name) VALUES (?, ?)', [userId, roleName]);
     }
 
     // Send tag reminder DM for roles that require tag
@@ -22,7 +21,7 @@ class RoleManager {
         const userId = member.user.id;
         
         // Check if already reminded for this role
-        if (this.wasReminded(userId, roleConfig.name)) {
+        if (await this.wasReminded(userId, roleConfig.name)) {
             return;
         }
 
@@ -43,7 +42,7 @@ class RoleManager {
 
         try {
             await member.send({ embeds: [embed] });
-            this.markReminded(userId, roleConfig.name);
+            await this.markReminded(userId, roleConfig.name);
             console.log(`📨 Sent tag reminder to ${member.user.tag} for ${roleConfig.name}`);
             
             // Log to channel
@@ -146,8 +145,8 @@ class RoleManager {
     // Check and grant roles for a user
     static async checkAndGrantRoles(member) {
         const userId = member.user.id;
-        const voiceHours = VoiceTracker.getVoiceHours(userId);
-        const hasTag = VoiceTracker.hasTag(userId);
+        const voiceHours = await VoiceTracker.getVoiceHours(userId);
+        const hasTag = await VoiceTracker.hasTag(userId);
         
         const rolesToGrant = [];
         const tagRequiredRoles = [];
@@ -166,7 +165,7 @@ class RoleManager {
                 
                 if (role && !member.roles.cache.has(role.id)) {
                     // Check if we already granted this role before
-                    if (!VoiceTracker.wasRoleGranted(userId, roleConfig.name)) {
+                    if (!(await VoiceTracker.wasRoleGranted(userId, roleConfig.name))) {
                         rolesToGrant.push({ role, config: roleConfig });
                     }
                 }
@@ -183,7 +182,7 @@ class RoleManager {
         for (const { role, config: roleConfig } of rolesToGrant) {
             try {
                 await member.roles.add(role);
-                VoiceTracker.markRoleGranted(userId, roleConfig.name);
+                await VoiceTracker.markRoleGranted(userId, roleConfig.name);
                 
                 // Send beautiful celebration DM
                 try {
@@ -227,8 +226,8 @@ class RoleManager {
     }
 
     // Get user's eligible roles
-    static getEligibleRoles(userId, hasTag) {
-        const voiceHours = VoiceTracker.getVoiceHours(userId);
+    static async getEligibleRoles(userId, hasTag) {
+        const voiceHours = await VoiceTracker.getVoiceHours(userId);
         
         return config.roles.filter(roleConfig => {
             if (voiceHours < roleConfig.hours) return false;

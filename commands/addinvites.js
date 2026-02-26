@@ -39,10 +39,10 @@ module.exports = {
         const member = await interaction.guild.members.fetch(targetUser.id);
 
         // Get current stats
-        const beforeStats = InviteTracker.getInviteStats(targetUser.id);
+        const beforeStats = await InviteTracker.getInviteStats(targetUser.id);
 
         // Add invites
-        const newTotal = InviteTracker.addInvites(targetUser.id, amount);
+        const newTotal = await InviteTracker.addInvites(targetUser.id, amount);
 
         // Check and grant roles
         const grantedRoles = await InviteTracker.checkAndGrantRoles(member, newTotal);

@@ -15,24 +15,49 @@ module.exports = {
 
         // User joined a voice channel
         if (!oldState.channelId && newState.channelId) {
-            VoiceTracker.joinVoice(userId, newState.channelId, newState.channel.name);
-            const stats = VoiceTracker.getUserStats(userId);
+            await VoiceTracker.joinVoice(userId, newState.channelId, newState.channel?.name);
+            const stats = await VoiceTracker.getUserStats(userId);
             
             await Logger.log('VOICE_JOIN', null, {
                 user,
                 userId,
                 userAvatar,
-                channel: newState.channel.name,
-                channelId: newState.channelId,
+                channel: newState.channel?.name || 'Unknown',
                 totalHours: stats.totalHours,
-                totalSeconds: stats.totalSeconds,
-                sessionCount: stats.sessionCount,
                 hasTag: stats.hasTag
             });
         }
 
         // User left a voice channel
         if (oldState.channelId && !newState.channelId) {
+            const sessionMinutes = await VoiceTracker.leaveVoice(userId);
+            const stats = await VoiceTracker.getUserStats(userId);
+            const hasTag = await VoiceTracker.hasTag(userId);
+            
+            // Find next role
+            let nextRole = null;
+            for (const roleConfig of config.roles) {
+                if (stats.totalHours < roleConfig.hours) {
+                    if (!roleConfig.requiresTag || hasTag) {
+                        nextRole = roleConfig;
+                        break;
+                    }
+                }
+            }
+            
+            await Logger.log('VOICE_LEAVE', null, {
+                user,
+                userId,
+                userAvatar,
+                channel: oldState.channel?.name || 'Unknown',
+                sessionMinutes: sessionMinutes,
+                totalHours: stats.totalHours,
+                nextRole: nextRole
+            });
+
+            // Check if user earned any roles
+            await RoleManager.checkAndGrantRoles(member);
+        }
             const sessionMinutes = VoiceTracker.leaveVoice(userId);
             const stats = VoiceTracker.getUserStats(userId);
             

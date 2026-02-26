@@ -34,7 +34,7 @@ module.exports = {
         const subcommand = interaction.options.getSubcommand();
         const targetUser = interaction.options.getUser('user');
         const hours = interaction.options.getInteger('hours');
-        const db = require('../utils/database-adapter');
+        const db = require('../utils/database-async');
         const Logger = require('../utils/logger');
 
         // Input validation
@@ -60,12 +60,11 @@ module.exports = {
         }
 
         if (subcommand === 'add') {
-            const stmt = db.prepare(`
+            await db.run(`
                 INSERT INTO voice_activity (user_id, total_seconds) 
                 VALUES (?, ?)
                 ON CONFLICT(user_id) DO UPDATE SET total_seconds = total_seconds + ?
-            `);
-            stmt.run(targetUser.id, hours * 3600, hours * 3600);
+            `, [targetUser.id, hours * 3600, hours * 3600]);
             
             await Logger.log('ADMIN_ACTION', `Added ${hours} hours to voice time`, {
                 admin: interaction.user.tag,
@@ -78,12 +77,11 @@ module.exports = {
                 flags: MessageFlags.Ephemeral 
             });
         } else if (subcommand === 'set') {
-            const stmt = db.prepare(`
+            await db.run(`
                 INSERT INTO voice_activity (user_id, total_seconds) 
                 VALUES (?, ?)
                 ON CONFLICT(user_id) DO UPDATE SET total_seconds = ?
-            `);
-            stmt.run(targetUser.id, hours * 3600, hours * 3600);
+            `, [targetUser.id, hours * 3600, hours * 3600]);
             
             await Logger.log('ADMIN_ACTION', `Set voice time to ${hours} hours`, {
                 admin: interaction.user.tag,

@@ -16,7 +16,7 @@ module.exports = {
         const targetUser = interaction.options.getUser('user') || interaction.user;
         const member = await interaction.guild.members.fetch(targetUser.id);
 
-        const stats = InviteTracker.getInviteStats(targetUser.id);
+        const stats = await InviteTracker.getInviteStats(targetUser.id);
         const nextRole = InviteTracker.getNextRole(stats.validInvites);
         const earnedRoles = InviteTracker.getRolesForInvites(stats.validInvites);
 

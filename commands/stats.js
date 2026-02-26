@@ -27,9 +27,9 @@ module.exports = {
             });
         }
 
-        const voiceHours = VoiceTracker.getVoiceHours(userId);
-        const hasTag = VoiceTracker.hasTag(userId);
-        const eligibleRoles = RoleManager.getEligibleRoles(userId, hasTag);
+        const voiceHours = await VoiceTracker.getVoiceHours(userId);
+        const hasTag = await VoiceTracker.hasTag(userId);
+        const eligibleRoles = await RoleManager.getEligibleRoles(userId, hasTag);
 
         // Find next role
         let nextRole = null;

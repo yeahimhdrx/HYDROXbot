@@ -1,4 +1,4 @@
-const db = require('./database-adapter');
+const db = require('./database-async');
 
 class InviteTracker {
     // Store invite cache in memory
@@ -32,9 +32,8 @@ class InviteTracker {
     /**
      * Get user's invite stats from database
      */
-    static getInviteStats(userId) {
-        const stmt = db.prepare('SELECT * FROM invites WHERE user_id = ?');
-        const result = stmt.get(userId);
+    static async getInviteStats(userId) {
+        const result = await db.get('SELECT * FROM invites WHERE user_id = ?', [userId]);
         
         if (!result) {
             return {
@@ -56,10 +55,11 @@ class InviteTracker {
     /**
      * Update user's invite count
      */
-    static updateInvites(userId, validInvites, leftInvites = 0, fakeInvites = 0) {
+    static async updateInvites(userId, validInvites, leftInvites = 0, fakeInvites = 0) {
         const totalInvites = validInvites + leftInvites + fakeInvites;
+        const now = Math.floor(Date.now() / 1000);
         
-        const stmt = db.prepare(`
+        await db.run(`
             INSERT INTO invites (user_id, total_invites, valid_invites, left_invites, fake_invites, last_updated)
             VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(user_id) DO UPDATE SET
@@ -68,42 +68,38 @@ class InviteTracker {
                 left_invites = ?,
                 fake_invites = ?,
                 last_updated = ?
-        `);
-        
-        const now = Math.floor(Date.now() / 1000);
-        stmt.run(
+        `, [
             userId, totalInvites, validInvites, leftInvites, fakeInvites, now,
             totalInvites, validInvites, leftInvites, fakeInvites, now
-        );
+        ]);
     }
 
     /**
      * Add invites to a user (for manual adjustment)
      */
-    static addInvites(userId, amount) {
-        const current = this.getInviteStats(userId);
+    static async addInvites(userId, amount) {
+        const current = await this.getInviteStats(userId);
         const newValid = current.validInvites + amount;
-        this.updateInvites(userId, newValid, current.leftInvites, current.fakeInvites);
+        await this.updateInvites(userId, newValid, current.leftInvites, current.fakeInvites);
         return newValid;
     }
 
     /**
      * Check if user has already been granted a role
      */
-    static hasRoleGranted(userId, roleName) {
-        const stmt = db.prepare('SELECT 1 FROM invite_roles_granted WHERE user_id = ? AND role_name = ?');
-        return stmt.get(userId, roleName) !== undefined;
+    static async hasRoleGranted(userId, roleName) {
+        const result = await db.get('SELECT 1 FROM invite_roles_granted WHERE user_id = ? AND role_name = ?', [userId, roleName]);
+        return result !== undefined;
     }
 
     /**
      * Mark role as granted
      */
-    static markRoleGranted(userId, roleName, invitesRequired) {
-        const stmt = db.prepare(`
+    static async markRoleGranted(userId, roleName, invitesRequired) {
+        await db.run(`
             INSERT OR IGNORE INTO invite_roles_granted (user_id, role_name, invites_required)
             VALUES (?, ?, ?)
-        `);
-        stmt.run(userId, roleName, invitesRequired);
+        `, [userId, roleName, invitesRequired]);
     }
 
     /**
@@ -128,15 +124,14 @@ class InviteTracker {
     /**
      * Get leaderboard
      */
-    static getLeaderboard(limit = 10) {
-        const stmt = db.prepare(`
+    static async getLeaderboard(limit = 10) {
+        return await db.all(`
             SELECT user_id, valid_invites, total_invites, left_invites, fake_invites
             FROM invites
             WHERE valid_invites > 0
             ORDER BY valid_invites DESC
             LIMIT ?
-        `);
-        return stmt.all(limit);
+        `, [limit]);
     }
 
     /**
@@ -196,8 +191,8 @@ class InviteTracker {
         }
 
         // Update inviter's stats
-        const stats = this.getInviteStats(inviter.id);
-        this.updateInvites(inviter.id, stats.validInvites + 1, stats.leftInvites, stats.fakeInvites);
+        const stats = await this.getInviteStats(inviter.id);
+        await this.updateInvites(inviter.id, stats.validInvites + 1, stats.leftInvites, stats.fakeInvites);
 
         console.log(`[InviteTracker] ${inviter.tag} invited ${member.user.tag} (Total: ${stats.validInvites + 1})`);
 
@@ -215,11 +210,11 @@ class InviteTracker {
     static async handleMemberLeave(member, inviterId) {
         if (!inviterId) return;
 
-        const stats = this.getInviteStats(inviterId);
+        const stats = await this.getInviteStats(inviterId);
         
         // Move from valid to left
         if (stats.validInvites > 0) {
-            this.updateInvites(
+            await this.updateInvites(
                 inviterId,
                 stats.validInvites - 1,
                 stats.leftInvites + 1,
@@ -239,7 +234,7 @@ class InviteTracker {
         for (const roleConfig of this.roles) {
             if (validInvites >= roleConfig.invites) {
                 // Check if already granted
-                if (!this.hasRoleGranted(member.user.id, roleConfig.name)) {
+                if (!(await this.hasRoleGranted(member.user.id, roleConfig.name))) {
                     rolesToGrant.push(roleConfig);
                 }
             }
@@ -254,6 +249,31 @@ class InviteTracker {
                 if (!role) {
                     console.warn(`[InviteTracker] Role "${roleConfig.name}" not found in server`);
                     continue;
+                }
+
+                // Check if user already has the role
+                if (member.roles.cache.has(role.id)) {
+                    // Mark as granted even if they already have it
+                    await this.markRoleGranted(member.user.id, roleConfig.name, roleConfig.invites);
+                    continue;
+                }
+
+                await member.roles.add(role);
+                await this.markRoleGranted(member.user.id, roleConfig.name, roleConfig.invites);
+                
+                grantedRoles.push({
+                    role: role,
+                    config: roleConfig
+                });
+
+                console.log(`[InviteTracker] Granted ${roleConfig.name} to ${member.user.tag}`);
+            } catch (error) {
+                console.error(`[InviteTracker] Error granting role ${roleConfig.name}:`, error.message);
+            }
+        }
+
+        return grantedRoles;
+    }                    continue;
                 }
 
                 // Check if user already has the role

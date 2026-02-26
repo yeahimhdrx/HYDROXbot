@@ -18,7 +18,7 @@ module.exports = {
         await interaction.deferReply();
 
         const limit = interaction.options.getInteger('limit') || 10;
-        const leaderboard = InviteTracker.getLeaderboard(limit);
+        const leaderboard = await InviteTracker.getLeaderboard(limit);
 
         if (leaderboard.length === 0) {
             return interaction.editReply({
