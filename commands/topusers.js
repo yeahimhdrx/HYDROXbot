@@ -40,9 +40,6 @@ module.exports = {
         // Get total count
         const countResult = await db.get('SELECT COUNT(*) as count FROM voice_activity WHERE total_seconds > 0');
         const totalCount = countResult.count;
-        const totalPages = Math.ceil(totalCount / itemsPerPage);        // Get total count
-        const countStmt = db.prepare('SELECT COUNT(*) as count FROM voice_activity WHERE total_seconds > 0');
-        const totalCount = countStmt.get().count;
         const totalPages = Math.ceil(totalCount / itemsPerPage);
 
         // Build leaderboard entries

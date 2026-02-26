@@ -176,3 +176,21 @@ class VoiceTracker {
 }
 
 module.exports = VoiceTracker;
+ 
+   /**
+     * Clean up orphaned sessions (sessions without end time older than 24 hours)
+     */
+    static async cleanupOrphanedSessions() {
+        const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+        const result = await db.run(`
+            DELETE FROM voice_sessions 
+            WHERE left_at_ms IS NULL AND joined_at_ms < ?
+        `, [oneDayAgo]);
+        
+        if (result.changes > 0) {
+            console.log(`[VoiceTracker] Cleaned up ${result.changes} orphaned session(s)`);
+        }
+    }
+}
+
+module.exports = VoiceTracker;

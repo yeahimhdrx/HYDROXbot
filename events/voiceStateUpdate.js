@@ -58,16 +58,9 @@ module.exports = {
             // Check if user earned any roles
             await RoleManager.checkAndGrantRoles(member);
         }
-            const sessionMinutes = VoiceTracker.leaveVoice(userId);
-            const stats = VoiceTracker.getUserStats(userId);
-            
-            // Find next role
-            let nextRole = null;
-            for (const roleConfig of config.roles) {
-                if (stats.totalHours < roleConfig.hours) {
-                    if (!roleConfig.requiresTag || stats.hasTag) {
-                        nextRole = roleConfig;
-                        break;
+
+        // User moved between voice channels
+        if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
                     }
                 }
             }
