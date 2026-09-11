@@ -1,5 +1,5 @@
 # Use Node 20 with full build tools (not Alpine)
-FROM node:20-bullseye-slim
+FROM node:20-bookworm-slim
 
 # Install system dependencies for canvas and better-sqlite3
 RUN apt-get update && apt-get install -y \
