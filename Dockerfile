@@ -2,7 +2,8 @@
 FROM node:20-bookworm-slim
 
 # Install system dependencies for canvas and better-sqlite3
-RUN apt-get update && apt-get install -y \
+# -o Acquire::Check-Valid-Until=false is used to bypass expired Debian bullseye release file issues
+RUN apt-get update -o Acquire::Check-Valid-Until=false && apt-get install -y \
     python3 \
     make \
     g++ \
