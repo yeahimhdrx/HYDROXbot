@@ -77,37 +77,37 @@ if (fs.existsSync(eventsPath)) {
 }
 
 // Periodic voice activity update (every 30 seconds for precision)
-setInterval(() => {
+setInterval(async () => {
     try {
-        VoiceTracker.updateActiveUsers();
+        await VoiceTracker.updateActiveUsers();
     } catch (error) {
         console.error('❌ Error updating active users:', error);
     }
 }, config.updateInterval * 1000);
 
 // Periodic cleanup of orphaned sessions (every 24 hours)
-setInterval(() => {
+setInterval(async () => {
     try {
-        VoiceTracker.cleanupOrphanedSessions();
+        await VoiceTracker.cleanupOrphanedSessions();
     } catch (error) {
         console.error('❌ Error cleaning up orphaned sessions:', error);
     }
 }, (config.cleanupInterval || 24) * 60 * 60 * 1000);
 
 // Run cleanup on startup
-setTimeout(() => {
+setTimeout(async () => {
     try {
-        VoiceTracker.cleanupOrphanedSessions();
-        MessageCache.cleanOldMessages();
+        await VoiceTracker.cleanupOrphanedSessions();
+        await MessageCache.cleanOldMessages();
     } catch (error) {
         console.error('❌ Error cleaning up orphaned sessions:', error);
     }
 }, 5000); // Wait 5 seconds after startup
 
 // Periodic cleanup of old cached messages (every 24 hours)
-setInterval(() => {
+setInterval(async () => {
     try {
-        MessageCache.cleanOldMessages();
+        await MessageCache.cleanOldMessages();
     } catch (error) {
         console.error('❌ Error cleaning up old messages:', error);
     }
