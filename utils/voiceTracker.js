@@ -175,6 +175,19 @@ class VoiceTracker {
     }
 
     /**
+     * Update last_updated_ms for all users currently in voice (periodic heartbeat)
+     */
+    static async updateActiveUsers() {
+        const now = Date.now();
+        const result = await db.run(`
+            UPDATE voice_activity
+            SET last_updated_ms = ?
+            WHERE joined_at_ms IS NOT NULL
+        `, [now]);
+        return result.changes || 0;
+    }
+
+    /**
      * Clean up orphaned sessions (sessions without end time older than 24 hours)
      */
     static async cleanupOrphanedSessions() {
